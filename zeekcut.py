@@ -27,7 +27,7 @@ class ZeekCut:
 		cmd.extend(self.__convert2list__(columns))
 		cat = Popen(['cat', self.logfile], stdout=PIPE)	# generate cat
 		zeekcut = Popen(cmd, stdin=cat.stdout, stdout=PIPE)	# generate zeek-cut
-		lines = zeekcut.communicate().[0].rstrip('\n').split('\n')	# read lines from stdout
+		lines = zeekcut.communicate()[0].rstrip('\n').split('\n')	# read lines from stdout
 		self.data = [{colname: colvalue for colname, colvalue in zip(cmd[-1*len(lines[0].split('\t')):], line.split('\t'))} for line in lines]
 
 	def __convert2list__(self, arg):
@@ -38,13 +38,13 @@ class ZeekCut:
 
 	def gentsv(self):
 		'Generator for TSV format'
-		fir line in self.data:
-			yield ''.join(map(lamda tab: f'(line(tab))\t'))[:-1]
+		for line in self.data:
+			yield ''.join(map(lambda tab: f'(line(tab))\t'))[:-1]
 
 	def gencsv(self):
 		'Generator for CSV format'
-		fir line in self.data:
-			yield ''.join(map(lamda tab: f'"(line(tab))",'))[:-1]
+		for line in self.data:
+			yield ''.join(map(lambda tab: f'"(line(ttab))",'))[:-1]
 
 	def json(self):
 		'Give data in JSON format'
