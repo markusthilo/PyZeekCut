@@ -38,8 +38,12 @@ class ZeekCut:
 			Create Object for zeek-cut:
 			cat logfile | zeek-cut [<options>] <columns>
 			Warning: -c does not work!
+			logfile can be a string or a file handler
 		'''
-		self.logfile = logfile
+		if isinstance(logfile, str):
+			self.logfile = logfile
+		else:
+			self.logfile = logfile.name
 		cmd = [self.ZEEKCUT]	# assemble shell command for zeek-cut
 		if options != None:
 			cmd.extend(self.__convert2list__(options))
