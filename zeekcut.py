@@ -4,7 +4,7 @@
 __author__ = 'Markus Thilo'
 __version__ = '0.1-20200306'
 __license__ = 'GPL-3'
-__help__ = '''
+__doc__ = '''
 Wrapper for zeek-cut
 This is executed: cat <logfiles> | zeek-cut [<options>] <columns>
 Usage:
