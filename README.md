@@ -6,7 +6,7 @@ This is executed: cat logfile | zeek-cut [<options>] <columns>
 ## Usage:
 How to use:
 zeeklog = ZeekCut(
-	logfile,
+	logfile, ### logfile can be a string or a list of filehandlers or strings
 	columns = ['ts', 'id.orig_h', 'id.orig_p', 'id.resp_h', 'id.resp_p'],
 	options = '-d'
 )

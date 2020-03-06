@@ -6,10 +6,10 @@ __version__ = '0.1-20200306'
 __license__ = 'GPL-3'
 __help__ = '''
 Wrapper for zeek-cut
-This is executed: cat logfile | zeek-cut [<options>] <columns>
+This is executed: cat <logfiles> | zeek-cut [<options>] <columns>
 Usage:
 zeeklog = ZeekCut(
-	logfile,
+	logfiles,
 	columns = ['ts', 'id.orig_h', 'id.orig_p', 'id.resp_h', 'id.resp_p'],
 	options = '-d'
 )
@@ -27,10 +27,10 @@ from json import dumps
 class ZeekCut:
 	'Python wrapper for zeek-cut'
 
-	ZEEKCUT = '/usr/local/zeek/bin/zeek-cut'
+	ZEEKCUT = '/usr/local/zeek/bin/zeek-cut'	# set path to zeek-cut here!!!
 
 	def __init__(self,
-		logfile,
+		logfiles,
 		columns = ['ts', 'id.orig_h', 'id.orig_p', 'id.resp_h', 'id.resp_p'],
 		options = None
 	):
@@ -38,20 +38,26 @@ class ZeekCut:
 			Create Object for zeek-cut:
 			cat logfile | zeek-cut [<options>] <columns>
 			Warning: -c does not work!
-			logfile can be a string or a file handler
 		'''
-		if isinstance(logfile, str):
-			self.logfile = logfile
+		self.logfiles = []	# create a list of filenames as strings
+		if isinstance(logfiles, str):
+			self.logfiles = [logfiles]
 		else:
-			self.logfile = logfile.name
-		cmd = [self.ZEEKCUT]	# assemble shell command for zeek-cut
+			for logfile in logfiles:
+				if isinstance(logfile, str):
+					self.logfiles.append(logfile)
+				else:
+					self.logfiles.append(logfile.name)
+		cat_cmd = ['cat']	# assemble shell command for cat
+		cat_cmd.extend(self.logfiles)
+		zeek_cmd = [self.ZEEKCUT]	# assemble shell command for zeek-cut
 		if options != None:
-			cmd.extend(self.__convert2list__(options))
-		cmd.extend(self.__convert2list__(columns))
-		cat = Popen(['cat', self.logfile], stdout=PIPE)	# generate cat
-		zeekcut = Popen(cmd, stdin=cat.stdout, stdout=PIPE)	# generate zeek-cut
+			zeek_cmd.extend(self.__convert2list__(self.options))
+		zeek_cmd.extend(self.__convert2list__(columns))
+		cat = Popen(cat_cmd, stdout=PIPE)	# generate cat
+		zeekcut = Popen(zeek_cmd, stdin=cat.stdout, stdout=PIPE)	# generate zeek-cut
 		lines = zeekcut.communicate()[0].decode().rstrip('\n').split('\n')	# read lines from stdout
-		self.data = [{colname: colvalue for colname, colvalue in zip(cmd[-1*len(lines[0].split('\t')):], line.split('\t'))} for line in lines]
+		self.data = [{colname: colvalue for colname, colvalue in zip(zeek_cmd[-1*len(lines[0].split('\t')):], line.split('\t'))} for line in lines]
 
 	def __convert2list__(self, arg):
 		'Convert argument to a list'
