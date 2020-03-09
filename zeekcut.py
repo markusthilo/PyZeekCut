@@ -4,7 +4,7 @@
 __author__ = 'Markus Thilo'
 __version__ = '0.1-20200306'
 __license__ = 'GPL-3'
-__doc__ = '''
+__help__ = '''
 Wrapper for zeek-cut
 This is executed: cat <logfiles> | zeek-cut [<options>] <columns>
 Usage:
@@ -52,7 +52,7 @@ class ZeekCut:
 		cat_cmd.extend(self.logfiles)
 		zeek_cmd = [self.ZEEKCUT]	# assemble shell command for zeek-cut
 		if options != None:
-			zeek_cmd.extend(self.__convert2list__(self.options))
+			zeek_cmd.extend(self.__convert2list__(options))
 		zeek_cmd.extend(self.__convert2list__(columns))
 		cat = Popen(cat_cmd, stdout=PIPE)	# generate cat
 		zeekcut = Popen(zeek_cmd, stdin=cat.stdout, stdout=PIPE)	# generate zeek-cut
@@ -61,6 +61,8 @@ class ZeekCut:
 
 	def __convert2list__(self, arg):
 		'Convert argument to a list'
+		if isinstance(arg, list):
+			return arg
 		if isinstance(arg, str):
 			return [arg]
 		return list(arg)
