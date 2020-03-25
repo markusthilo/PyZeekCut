@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Markus Thilo'
-__version__ = '0.1-20200306'
+__version__ = '0.2-20200325'
 __license__ = 'GPL-3'
 __help__ = '''
 Wrapper for zeek-cut
@@ -37,7 +37,6 @@ class ZeekCut:
 		'''
 			Create Object for zeek-cut:
 			cat logfile | zeek-cut [<options>] <columns>
-			Warning: -c does not work!
 		'''
 		self.logfiles = []	# create a list of filenames as strings
 		if isinstance(logfiles, str):
@@ -57,7 +56,13 @@ class ZeekCut:
 		cat = Popen(cat_cmd, stdout=PIPE)	# generate cat
 		zeekcut = Popen(zeek_cmd, stdin=cat.stdout, stdout=PIPE)	# generate zeek-cut
 		lines = zeekcut.communicate()[0].decode().rstrip('\n').split('\n')	# read lines from stdout
-		self.data = [{colname: colvalue for colname, colvalue in zip(zeek_cmd[-1*len(lines[0].split('\t')):], line.split('\t'))} for line in lines]
+		if options != None and ( '-c' in options or '-C' in options ):
+			self.data = [{ tab: tab for tab in columns }]
+		else:
+			self.data = []
+		self.data += [{colname: colvalue for colname, colvalue in zip(columns, line.split('\t'))} for line in lines if line[0] != '#']
+		self.columns = columns
+		self.options = options
 
 	def __convert2list__(self, arg):
 		'Convert argument to a list'
@@ -70,12 +75,12 @@ class ZeekCut:
 	def gentsv(self):
 		'Generator for TSV format'
 		for line in self.data:
-			yield ''.join(map(lambda tab: f'{line[tab]}\t', line))[:-1]
+			yield '\t'.join(map(lambda tab: str(line[tab]), self.columns))
 
 	def gencsv(self):
 		'Generator for CSV format'
 		for line in self.data:
-			yield ''.join(map(lambda tab: f'"{line[tab]}",', line))[:-1]
+			yield '"' + '","'.join(map(lambda tab: str(line[tab]), self.columns)) + '"'
 
 	def json(self):
 		'Give data in JSON format'
