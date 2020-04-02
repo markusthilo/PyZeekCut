@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Markus Thilo'
-__version__ = '0.2-20200325'
+__version__ = '0.3-20200402'
 __license__ = 'GPL-3'
 __help__ = '''
 Wrapper for zeek-cut
 This is executed: cat <logfiles> | zeek-cut [<options>] <columns>
-Usage:
+Usage / example:
 zeeklog = ZeekCut(
 	logfiles,
 	columns = ['ts', 'id.orig_h', 'id.orig_p', 'id.resp_h', 'id.resp_p'],
@@ -22,6 +22,7 @@ print(zeeklog.data)
 '''
 
 from subprocess import Popen, PIPE
+from ipaddress import ip_address
 from json import dumps
 
 class ZeekCut:
@@ -64,14 +65,6 @@ class ZeekCut:
 		self.columns = columns
 		self.options = options
 
-	def __convert2list__(self, arg):
-		'Convert argument to a list'
-		if isinstance(arg, list):
-			return arg
-		if isinstance(arg, str):
-			return [arg]
-		return list(arg)
-
 	def gentsv(self):
 		'Generator for TSV format'
 		for line in self.data:
@@ -82,6 +75,29 @@ class ZeekCut:
 		for line in self.data:
 			yield '"' + '","'.join(map(lambda tab: str(line[tab]), self.columns)) + '"'
 
+	def convert(self): 
+		'Try to convert values of tabs to int, float or IP addresses'
+		for line in self.data:
+			for tab in line:
+				try:
+					line[tab] = int(line[tab])
+				except:
+					try:
+						line[tab] = float(line[tab])
+					except:
+						try:
+							line[tab] = ip_address(line[tab])
+						except:
+							pass
+
 	def json(self):
 		'Give data in JSON format'
 		return dumps(self.data)
+
+	def __convert2list__(self, arg):
+		'Convert argument to a list'
+		if isinstance(arg, list):
+			return arg
+		if isinstance(arg, str):
+			return [arg]
+		return list(arg)
