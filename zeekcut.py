@@ -75,19 +75,20 @@ class ZeekCut:
 		for line in self.data:
 			yield '"' + '","'.join(map(lambda tab: str(line[tab]), self.columns)) + '"'
 
-	def convert(self): 
+	def convert(self, force=dict()): 
 		'Try to convert values of tabs to int, float or IP addresses'
 		for line in self.data:
 			for tab in line:
-				try:
-					line[tab] = int(line[tab])
-				except:
-					try:
-						line[tab] = float(line[tab])
-					except:
+				if tab in force:
+					if force[tab] in (int, float) and line[tab] == '-':
+						line[tab] = force[tab](0)
+					else:
+						line[tab] = force[tab](line[tab])
+				else:
+					for form in int, float, ip_address:
 						try:
-							line[tab] = ip_address(line[tab])
-						except:
+							line[tab] = form(line[tab])
+						except ValueError:
 							pass
 
 	def json(self):
