@@ -15,4 +15,4 @@
 ####
 ### zeeklog.json() => returns .data as a string in JSON format
 ####
-### zeeklog.convert() => try to convert to values to int, float or IPv4/6Address
+### zeeklog.convert() => try to convert values to int, float or IPv4/6Address
