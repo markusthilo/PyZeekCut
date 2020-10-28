@@ -109,7 +109,10 @@ class ZeekCut:
 	def __convert2list__(self, arg):
 		'Convert argument to a list'
 		if isinstance(arg, list):
-			return arg
+			try:
+				return [ f.name for f in arg ]
+			except AttributeError:
+				return arg
 		if isinstance(arg, str):
 			return [arg]
 		return list(arg)
