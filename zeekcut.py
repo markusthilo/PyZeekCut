@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'Markus Thilo'
-__version__ = '0.4-20201028'
+__version__ = '0.4-20201029'
 __license__ = 'GPL-3'
 __help__ = '''
 Wrapper for zeek-cut
@@ -99,6 +99,7 @@ class ZeekCut:
 					for form in int, float, ip_address:
 						try:
 							line[tab] = form(line[tab])
+							break
 						except ValueError:
 							pass
 
